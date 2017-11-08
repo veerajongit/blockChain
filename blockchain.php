@@ -37,15 +37,33 @@ class blockChain {
     }
 
 
-    function getLatestBlock(){
+    function getLatestBlock() {
         return $this->chain[count($this->chain) - 1];
     }
 
 
-    function addBlock($newBlock){
+    function addBlock($newBlock) {
         $newBlock->previousHash = $this->getLatestBlock()->Hash;
         $newBlock->Hash = $newBlock->calculateHash();
         array_push($this->chain, $newBlock);
+    }
+
+    function isChainValid() {
+        for ($i = 1; $i < count($this->chain); $i++) {
+            $currentBlock = $this->chain[$i];
+            $previousBlock = $this->chain[$i - 1];
+
+
+            if ($currentBlock->Hash != $currentBlock->calculateHash()) {
+                return false;
+            }
+
+            if ($currentBlock->previousHash != $previousBlock->Hash) {
+                return false;
+            }
+
+        }
+        return true;
     }
 }
 
