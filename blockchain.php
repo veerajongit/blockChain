@@ -16,10 +16,18 @@ class block {
         $this->data = $data;
         $this->previousHash = $previousHash;
         $this->Hash = $this->calculateHash();
+        $this->nonce = 0;
     }
 
     function calculateHash() {
-        return hash('sha256', ($this->index . $this->previousHash . $this->timestamp . json_encode($this->data)));
+        return hash('sha256', ($this->index . $this->previousHash . $this->timestamp . json_encode($this->data) . $this->nonce));
+    }
+
+    function mineBlock($difficulty) {
+        while (substr($this->Hash, 0, $difficulty) !== str_repeat("0", $difficulty)) {
+            $this->nonce++;
+            $this->Hash = $this->calculateHash();
+        }
     }
 }
 
@@ -29,6 +37,9 @@ class blockChain {
     public function __construct() {
         //Block chain always starts with a dummy data. Here we initialize our first block
         $this->chain = array($this->createGenesisBlock());
+
+        //Set the difficulty level here
+        $this->difficulty = 5;
     }
 
 
@@ -44,7 +55,7 @@ class blockChain {
 
     function addBlock($newBlock) {
         $newBlock->previousHash = $this->getLatestBlock()->Hash;
-        $newBlock->Hash = $newBlock->calculateHash();
+        $newBlock->mineBlock($this->difficulty);
         array_push($this->chain, $newBlock);
     }
 
